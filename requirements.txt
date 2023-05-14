@@ -4,3 +4,4 @@ simple_image_download==0.2
 numpy==1.24.3
 opencv-python-headless==4.3.0.38
 ultralytics==8.0.99
+aioredis==1.3.1

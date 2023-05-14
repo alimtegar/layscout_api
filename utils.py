@@ -90,7 +90,6 @@ def calc_ap(precision: np.ndarray, recall: np.ndarray) -> float:
   return ap
 
 def calc_map(detections: np.ndarray, ground_truth: np.ndarray, iou_threshold: float=0.5) -> float:
-  print('iou_threshold = ', iou_threshold)
   class_ids = np.unique(np.concatenate([detections[:,5], ground_truth[:,5]]))
   aps = []
   for cls in class_ids:
@@ -111,3 +110,15 @@ def calc_map(detections: np.ndarray, ground_truth: np.ndarray, iou_threshold: fl
     ap = calc_ap(precision, recall)
     aps.append(ap)
   return np.mean(aps)
+
+
+# Redis
+async def store_list_in_redis(redis, key, lst):
+    await redis.set(key, str(lst))
+
+async def get_list_from_redis(redis, key):
+    my_list_str = await redis.get(key)
+    if my_list_str:
+        return eval(my_list_str)
+    else:
+        return None
