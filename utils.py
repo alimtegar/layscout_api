@@ -1,7 +1,9 @@
 import numpy as np
 import cv2
 import requests
+import io
 from typing import List, Tuple
+from PIL import Image
 from simple_image_download import simple_image_download as simp
 
 def load_image_from_url(url: str) -> np.ndarray:
@@ -11,8 +13,8 @@ def load_image_from_url(url: str) -> np.ndarray:
         return np.empty((0,))
 
     image_content = response.content
-    image = np.asarray(bytearray(image_content), dtype='uint8')
-    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    image = Image.open(io.BytesIO(image_content))
+    image = np.array(image)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     return image
 
@@ -76,8 +78,9 @@ def calc_precision_recall(detections: np.ndarray, ground_truth: np.ndarray, iou_
       fn[i] = 1
   tp = np.cumsum(tp)
   fp = np.cumsum(fp)
-  precision = tp / (tp + fp)
-  recall = tp / (tp + fn)
+  epsilon = 1e-8  # small value to avoid division by zero
+  precision = tp / (tp + fp + epsilon)
+  recall = tp / (tp + fn + epsilon)
   return precision, recall
 
 def calc_ap(precision: np.ndarray, recall: np.ndarray) -> float:
